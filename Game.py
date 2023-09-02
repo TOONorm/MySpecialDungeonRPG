@@ -38,18 +38,21 @@ class Game(cmd.Cmd):
     def do_go_next(self, arg):
         'Go into the next room of Dungeon'
         global monster,player
-        if player != None:
-            monster = Unit('Monster', 100, 4, 8)
-            armors = [Armor(Spell('ARMOR','',0,0,1), 'Head of Orc', '', 'HEAD', monster),
-                     Armor(Spell('ARMOR', '', 4, 0, 3), 'Body of Orc', '', 'BODY', monster)]
-            for i in armors:
-                i.pick_up(monster)
-                i.take_on()
-            weapon = Weapon(Spell('Damage of sword', 'Harm of iron sword', 0, 5, 0), 'Sword', 'Just one-hand sword', size=1, holder=monster)
-            weapon.pick_up_weapon()
+        if player != None and monster == None:
+            monster = Unit('Monster', 100, 4, 7)
+            # armors = [Armor(Spell('ARMOR','',0,0,1), 'Head of Orc', '', 'HEAD', monster),
+            #          Armor(Spell('ARMOR', '', 4, 0, 3), 'Body of Orc', '', 'BODY', monster)]
+            # for i in armors:
+            #     i.pick_up(monster)
+            #     i.take_on()
+            # weapon = Weapon(Spell('Damage of sword', 'Harm of iron sword', 0, 5, 0), 'Sword', 'Just one-hand sword', size=1, holder=monster)
+            # weapon.pick_up_weapon()
             monster.statistics()
         else:
-            print('You haven`t created character')
+            if monster != None:
+                print('You fighting now!')
+            if player == None:
+                print('You haven`t created character.')
 
     def do_invent_opponent(self, arg):
         'See what wear and use your opponent'

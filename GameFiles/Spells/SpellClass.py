@@ -16,7 +16,7 @@ class Spell:
               f'DF BOOST: {self.options["DEFENCE"]}\n'
               f'...{self.description}...\n')
     def __call__(self,victim:object):
-        if self.spl_name == 'ARMOR':
+        if self.spl_name == 'ARMOR' or self.spl_name == 'WEAPON':
             victim.hp += self.options['HP']
             victim.damage += self.options['DAMAGE']
             victim.defence += self.options['DEFENCE']
