@@ -1,10 +1,10 @@
 from random import randint
-from Spells.SpellClass import Spell
-from Items.ItemClass import Armor, Weapon, Item
+from .Spells.SpellClass import Spell
+from .Items.ItemClass import Armor, Weapon, Item
 
 
 class Unit:
-    def __init__(self, NAME:str ,HP:int, DM:int, DEFENCE:int, STATUS:str='LIFE'):
+    def __init__(self, NAME:str='Bob' ,HP:int=100, DM:int=4, DEFENCE:int=7, STATUS:str='LIFE'):
         self.inventory = {
             'HEAD': None,
             'BODY':None,
@@ -24,19 +24,21 @@ class Unit:
     def attacking(self, victim):
         if self.status != "LIFE":
             print(f'{self.name} can`t attacking, because {self.name} is {self.status}\n')
+        elif victim.status != 'LIFE':
+            print(f'{self.name} can`t attacking, because {victim.name} is {victim.status}\n')
         else:
             if randint(0, 20) >= victim.defence:
                 victim.hp -= self.damage
                 if victim.hp <= 0:
                     victim.status = 'DEAD'
-                print(f'{self.name} damaging opponent\n')
+                print(f'\n{self.name} damaging opponent')
             else:
                 print(f'{self.name} missed\n')
     def get_inventory(self):
         print(f'{"ARMOR":-^20}')
         for i in ['HEAD',"BODY","BOOTS",]:
             if self.inventory[i] != None:
-                print(f'{i}: {self.inventory[i].armor_name}')
+                print(f'{i}: {self.inventory[i].item_name}')
             else:
                 print(f'{i}: {self.inventory[i]}')
         print(f'{"ITEMS":-^20}')
@@ -65,23 +67,27 @@ class Unit:
                f'STATUS: {status:{char}^{vol}}\n')
 
 def main_test_1():
-    opp = Unit('OrcBolk', 30, 10, 8, 'life')
-    unit = Unit('Bob', 30, 10, 8, 'life')
-    while opp.hp > -10 and unit.hp > -10:
-        unit.statistics()
+    opp = Unit('OrcBolk', 30, 10, 8,)
+    player = Unit('Bob', 30, 10, 8,)
+    while opp.hp > -10 and player.hp > -10:
+        player.statistics()
         opp.statistics()
-        unit.attacking(opp)
-        opp.attacking(unit)
-    unit.statistics()
+        player.attacking(opp)
+        opp.attacking(player)
+    player.statistics()
     opp.statistics()
 
-
-if __name__ == '__main__':
+def main_test_2():
     bob = Unit('Bob', 10, 1, 10)
-    bob.statistics(); bob.get_inventory()
+    bob.statistics()
+    bob.get_inventory()
     item = Item(item_name='Beach',
                 description='just the item')
     item.pick_up(bob)
-    armor = Armor(Spell('ARMOR', '', 0, 0, 4), 'MEGAturboSUPERhead','boots')
+    armor = Armor(Spell('ARMOR', '', 0, 0, 4), 'MEGAturboSUPERhead', 'boots')
     armor.pick_up(bob)
-    bob.statistics(); bob.get_inventory()
+    bob.statistics()
+    bob.get_inventory()
+
+if __name__ == '__main__':
+    main_test_2()
