@@ -1,50 +1,9 @@
-import time
-
 import spoof_progress
 from GameFiles import *
 import cmd
 import pickle
 from spoof_progress import spoof
 
-def main():
-    global player, monster, player_name, select_save
-    while True:
-        try:
-            # load save
-            select_save = input(
-                f'Select a save:\n1.{"ZeroSave":=^20}\n2.{"SecondSave":=^20}\n3.{"ThirdSave":=^20}\n>>> ')
-            if select_save == '1':
-                with open('./GameFiles/Saves/ZeroSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/ZeroSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-                with open('./GameFiles/Saves/ZeroSave_player_name.txt', "r") as file:
-                    player_name = file.read()
-                    print(player_name)
-            elif select_save == '2':
-                with open('./GameFiles/Saves/SecondSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/SecondSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-                with open('./GameFiles/Saves/SecondSave_player_name.txt', "r") as file:
-                    player_name = file.read()
-            elif select_save == '3':
-                with open('./GameFiles/Saves/ThirdSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/ThirdSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-                with open('./GameFiles/Saves/ThirdSave_player_name.txt', "r") as file:
-                    player_name = file.read()
-            # game
-            Game().cmdloop()
-        # except AttributeError:
-        #     print('You haven`t created character. Use command "crt_char"')
-        except KeyboardInterrupt:
-            print(f'\n{"_" * 21}\n|{"=" * 19}|\n|{"Game Over":=^19}|\n|{"=" * 19}|\n|{" " * 19}|\n')
-        finally:
-            if input('Wana restart?[y/n]:\n') != 'y':
-                print('Goodbye')
-                break
 
 # static
 count_of_loot = 1
@@ -264,7 +223,7 @@ def main():
         except KeyboardInterrupt:
             print(f'\n{"_" * 21}\n|{"=" * 19}|\n|{"Game Over":=^19}|\n|{"=" * 19}|\n|{" " * 19}|\n')
         finally:
-            if input('Wana restart?[y/n](Do not restarting for save the progress or changes):\n') != 'y':
+            if input('(Do not restarting for save the progress or changes)\nWana restart?[y/n]:\n') != 'y':
                 print('Goodbye')
                 break
 
