@@ -3,7 +3,7 @@ sys.path.append('../../../GameFiles')
 
 from random import randint
 from GameFiles import *
-
+from GameFiles.Items.OW_GoldenAxe import Golden_Axe
 
 class OrcOrk(Unit):
     def __init__(self):
@@ -16,7 +16,7 @@ class OrcOrk(Unit):
             'HEAD': None,
             'BODY': None,
             'BOOTS': None,
-            'WEAPON': None,
+            'WEAPON': Golden_Axe,
             'ITEMS': []
         }
 
