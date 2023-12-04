@@ -43,16 +43,15 @@ class Weapon(Item):
         if self not in self.holder.inventory['ITEMS']:
             print(f'You can`t take on {self.item_name}, because {self.item_name} not in your inventory')
         else:
+            self.holder.inventory['ITEMS'].remove(self)
             for i in ['FIRST HAND', 'SECOND HAND']:
                 if self.size == 2:
                     if self.holder.inventory[i] != None:
                         self.holder.inventory['ITEMS'].append(self.holder.inventory[i])
                     self.holder.inventory[i] = self
-                    self.holder.inventory['ITEMS'].remove(self)
                 else:
                     if self.holder.inventory[i] == None:
                         self.holder.inventory[i] = self
-                        self.holder.inventory['ITEMS'].remove(self)
                         break
         self.spell(self.holder)
     def info(self):

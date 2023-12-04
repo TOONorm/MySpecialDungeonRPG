@@ -5,7 +5,7 @@ from .Items.ItemClass import Armor, Weapon, Item
 
 
 class Unit:
-    def __init__(self, NAME:str='Bob' ,HP:int=100, DM:int=4, DEFENCE:int=7, STATUS:str='LIFE'):
+    def __init__(self, NAME:str='Bob' ,HP:int=100, DM:int=4, DEFENCE:int=7, LEVEL:int = 1, STATUS:str='LIFE'):
         self.inventory = {
             'HEAD': None,
             'BODY':None,
@@ -14,18 +14,22 @@ class Unit:
             'SECOND HAND': None,
             'ITEMS':[]
         }
+        self.spell_book = []
         self.name = NAME
         self.hp = HP
         self.damage = DM
         self.defence = DEFENCE
         self.status = STATUS.upper()
+        self.lvl = LEVEL
 
     def attacking(self, victim):
         if self.status != "LIFE":
-            print(f'{self.name} can`t attacking, because {self.name} is {self.status}\n')
+            print(f'\n{self.name} can`t attacking, because {self.name} is {self.status}\n')
+            del self
             return 'DEAD'
         elif victim.status != 'LIFE':
             print(f'{self.name} can`t attacking, because {victim.name} is {victim.status}\n')
+            del victim
         else:
             if randint(0, 20) >= victim.defence:
                 victim.hp -= self.damage
@@ -33,7 +37,7 @@ class Unit:
                     victim.status = 'DEAD'
                 print(f'\n{self.name} damaging opponent')
             else:
-                print(f'\n{self.name} missed')
+                print(f'{self.name} missed\n')
     def looting(self, victim):
         if victim.status == 'DEAD':
             item = random.choice(list(victim.inventory.keys()))
@@ -49,7 +53,7 @@ class Unit:
                         try_taked_item.drop(victim)
                 print(f'You just take new item from {item}, check your inventory\n')
             else:
-                print('You are unfind nothin\n')
+                print('\nYou are unfind nothin\n')
         else:
             print('Enemy is not dead\n')
     def get_inventory(self):
@@ -81,6 +85,7 @@ class Unit:
         damage = self.damage
         status = self.status
         defence = self.defence
+        lvl = self.lvl
 
         if status == 'LIFE':
             char = '_'; vol = 10
@@ -91,6 +96,7 @@ class Unit:
         else:
             char = ''; vol = 0
         print(f'\nNAME: {name}\n'
+              f'LVL: {lvl}\n'
                f'HP: {hp}\n' 
                f'DM: {damage}\n' 
                f'DF: {defence}\n' 

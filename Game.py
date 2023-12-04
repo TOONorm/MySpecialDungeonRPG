@@ -2,28 +2,29 @@ import spoof_progress
 from GameFiles import *
 import cmd
 import pickle
-from spoof_progress import spoof
 
 
-# static
-count_of_loot = 1
-player:Unit = None
-monster:Unit = None
-select_save = input(
-                f'Select a save:\n1.{"ZeroSave":=^20}\n2.{"SecondSave":=^20}\n3.{"ThirdSave":=^20}\n>>> ')
-if select_save == "1":
-    player_name = open('./GameFiles/Saves/ZeroSave_player_name.txt', "r").read()
+select_save = input(f'Select a save:\n1.{"ZeroSave":=^20}\n2.{"SecondSave":=^20}\n3.{"ThirdSave":=^20}\n>>> ')
+if select_save == '1':
+    with open('./GameFiles/Saves/ZeroSave.pickle', "rb") as file:
+        static_for_load = pickle.load(file)
+        player_name = static_for_load[2]
 elif select_save == '2':
-    player_name = open('./GameFiles/Saves/SecondSave_player_name.txt', "r").read()
+    with open('./GameFiles/Saves/SecondSave.pickle', "rb") as file:
+        static_for_load = pickle.load(file)
+        player_name = static_for_load[2]
 elif select_save == '3':
-    player_name = open('./GameFiles/Saves/ThirdSave_player_name.txt', "r").read()
+    with open('./GameFiles/Saves/ThirdSave.pickle', "rb") as file:
+        static_for_load = pickle.load(file)
+        player_name = static_for_load[2]
+
 
 
 
 # shell
 class Game(cmd.Cmd):
     global player, monster, player_name
-    intro = 'Send "help" or ? for list commands.\n'
+    intro = 'Send "help" or ? for list commands.\nSend ?/help before command for show description of command like <help attack>\n'
     prompt = f'<{player_name}> '
     doc_header = 'What can you do'
 
@@ -34,8 +35,8 @@ class Game(cmd.Cmd):
             player = Unit(input('Enter character name: '),)
             player_name = player.name
             player.statistics()
-            self.do_save_the_game('')
-            raise KeyboardInterrupt
+            Game.do_save_the_game(self, arg)
+            Game.do_stop_game(self, arg)
         else:
             if input('You have character. Wana kill him and create new? [y/n]') == 'y':
                 player = None
@@ -52,14 +53,14 @@ class Game(cmd.Cmd):
             monster.statistics()
         else:
             if player == None:
-                print('You haven`t created character. Use command "crt_char"')
+                print('You haven`t created character. Use command "crt_player"')
     def do_see_inventory(self,arg):
         'See your inventory'
         try:
             if player != None:
                 Inventory(unit_inventory=player).cmdloop()
             else:
-                print('You haven`t created character. Use command "crt_char"')
+                print('You haven`t created character. Use command "crt_player"')
         except SystemExit:
             print(f'{"You backed":.^20}')
 
@@ -68,51 +69,37 @@ class Game(cmd.Cmd):
         raise KeyboardInterrupt
     def do_save_the_game(self, arg):
         "Save your game"
-        global player, monster, player_name
+        global player, monster, player_name, count_of_loot, list_of_static, biom
+
+        list_of_static = [player, monster, player_name, count_of_loot, biom]
+
         select_save = input(
             f'Select a save:\n1.{"ZeroSave":=^20}\n2.{"SecondSave":=^20}\n3.{"ThirdSave":=^20}\n>>> ')
+
         if select_save == '1':
-            with open('./GameFiles/Saves/ZeroSave_player.pickle', "wb") as file:
-                pickle.dump(player, file)
-            with open('./GameFiles/Saves/ZeroSave_monster.pickle', "wb") as file:
-                pickle.dump(monster, file)
-            with open('./GameFiles/Saves/ZeroSave_player_name.txt', "w") as file:
-                file.write(player_name)
+            with open('./GameFiles/Saves/ZeroSave.pickle', "wb") as file:
+                pickle.dump(list_of_static, file)
         elif select_save == '2':
-            with open('./GameFiles/Saves/SecondSave_player.pickle', "wb") as file:
-                pickle.dump(player, file)
-            with open('./GameFiles/Saves/SecondSave_monster.pickle', "wb") as file:
-                pickle.dump(monster, file)
-            with open('./GameFiles/Saves/SecondSave_player_name.txt', "w") as file:
-                file.write(player_name)
+            with open('./GameFiles/Saves/SecondSave.pickle', "wb") as file:
+                pickle.dump(list_of_static, file)
         elif select_save == '3':
-            with open('./GameFiles/Saves/ThirdSave_player.pickle', "wb") as file:
-                pickle.dump(player, file)
-            with open('./GameFiles/Saves/ThirdSave_monster.pickle', "wb") as file:
-                pickle.dump(monster, file)
-            with open('./GameFiles/Saves/ThirdSave_player_name.txt', "w") as file:
-                file.write(player_name)
+            with open('./GameFiles/Saves/ThirdSave.pickle', "wb") as file:
+                pickle.dump(list_of_static, file)
+
         print(f'\n{"Game saved":=^20}\n')
     def do_go(self, arg):
         'Go into the next room of Dungeon'
-        global monster,player, count_of_loot
+        global monster, player, count_of_loot
         count_of_loot = 1
         if player != None and monster == None or player != None and monster.status == 'DEAD':
-            monster = Unit('Monster', 10, 4, 3)
-            armors = [Armor(Spell('ARMOR',0,0,1), 'Head of Orc', '', 'HEAD', monster),
-                     Armor(Spell('ARMOR', 4, 0, 3), 'Body of Orc', '', 'BODY', monster)]
-            for i in armors:
-                i.pick_up(monster)
-                i.take_on()
-            weapon = Weapon(Spell('Damage of sword', 0, 5, 0), 'Sword', 'Just one-hand sword', size=1, holder=monster)
-            weapon.pick_up(monster)
-            weapon.take_on()
+            monster = None
+            monster = biom.summon_some_monsters()
             monster.statistics()
         else:
             if monster != None:
-                print('You fighting now!')
+                print('\nYou fighting now!\n')
             if player == None:
-                print('You haven`t created character.')
+                print('\nYou haven`t created character. Use command "crt_player"\n')
 
     def do_invent_opponent(self, arg):
         'See what wear and use your opponent'
@@ -128,13 +115,13 @@ class Game(cmd.Cmd):
         if player != None and monster != None:
             player.attacking(monster)
             monster.attacking(player)
-            if player.attacking == 'DEAD':
-                Game.do_stop_game()
+            if player.attacking(monster) == 'DEAD':
+                Game.do_stop_game(self, arg)
         else:
             if monster == None:
                 print('Now you don`t see monsters...')
             if player == None:
-                print('You haven`t created character.')
+                print('You haven`t created character. Use command "crt_player"')
     def do_looting(self, arg):
         'When your opponent loose, you can take him loot'
         global count_of_loot
@@ -142,7 +129,7 @@ class Game(cmd.Cmd):
             count_of_loot -= 1
             player.looting(monster)
         else:
-            print('You wasted your looting point')
+            print('\nYou wasted your looting point\n')
     def do_spoof_all_progress(self,arg):
         'Delete all your saves'
         if input('You absolutly right?[y/n]:\n') == 'y':
@@ -153,7 +140,7 @@ class Game(cmd.Cmd):
 
 class Inventory(cmd.Cmd):
     global monster, player
-    intro = "\n-------------INVENTORY-------------\n\nSend 'help' or ? for list commands.\n"
+    intro = f'\n{"INVENTORY":-^32}\n\nSend "help" or ? for list commands.\nSend ?/help before command for show description of command like <help attack>\n'
     prompt = '>>> '
     doc_header = 'All what can you see'
     def __init__(self, unit_inventory:Unit):
@@ -164,10 +151,12 @@ class Inventory(cmd.Cmd):
         self.unit.get_armor()
 
     def do_item_info(self, arg):
-        'Invent item from inventory. Use "item_info <item slot(head, body, etc.)>" struct.'
+        'Invent item from inventory. Use "item_info <item slot or inventory position(head, body, 1, 2, 3, etc.)>" struct.'
         if arg.upper() not in list(self.unit.inventory.keys()):
-            print('Not supported key')
+           print('Not supported key')
         else:
+            # if int(arg) == int:
+            #     self.unit.inventory['ITEMS'][int(arg)-1].info()
             if self.unit.inventory[arg.upper()] != None and arg.upper() != 'ITEMS':
                 self.unit.inventory[arg.upper()].info()
             elif arg.upper() == 'ITEMS':
@@ -195,40 +184,47 @@ class Inventory(cmd.Cmd):
         'Go back and fight!'
         raise SystemExit
 
-# start the game
-def main():
-    global player, monster, player_name, select_save
-    while True:
-        try:
-            # load save
-            if select_save == '1':
-                with open('./GameFiles/Saves/ZeroSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/ZeroSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-            elif select_save == '2':
-                with open('./GameFiles/Saves/SecondSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/SecondSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-            elif select_save == '3':
-                with open('./GameFiles/Saves/ThirdSave_player.pickle', "rb") as file:
-                    player = pickle.load(file)
-                with open('./GameFiles/Saves/ThirdSave_monster.pickle', "rb") as file:
-                    monster = pickle.load(file)
-            # game
-            Game().cmdloop()
-        # except AttributeError:
-        #     print('You haven`t created character. Use command "crt_char"')
-        except KeyboardInterrupt:
-            print(f'\n{"_" * 21}\n|{"=" * 19}|\n|{"Game Over":=^19}|\n|{"=" * 19}|\n|{" " * 19}|\n')
-        finally:
-            if input('(Do not restarting for save the progress or changes)\nWana restart?[y/n]:\n') != 'y':
-                print('Goodbye')
-                break
+
+# functions
+def load_static(name_save:str) -> None:
+    global player, monster, player_name, select_save, count_of_loot, biom
+    with open(f'./GameFiles/Saves/{name_save}Save.pickle', "rb") as file:
+        static_for_load = pickle.load(file)
+        player = static_for_load[0]
+        monster = static_for_load[1]
+        player_name = static_for_load[2]
+        count_of_loot = static_for_load[3]
+        biom = BiomClass(lst_Units=lst_un(), lst_Items=lst_it(), player=static_for_load[0])
+
+def load_save() -> None:
+    # load save
+    if select_save == '1':
+        load_static('Zero')
+
+    elif select_save == '2':
+        load_static('Second')
+
+    elif select_save == '3':
+        load_static('Third')
 
 
 # start of script
 if __name__ == '__main__':
     print('\nWelcome to pre-alfa-beta-test of the MySpecialDungeon.\n')
-    main()
+    while True:
+        try:
+            # load save
+            load_save()
+
+            # game
+            Game().cmdloop()
+
+        except KeyboardInterrupt:
+            print(f'\n{"_" * 21}\n|{"=" * 19}|\n|{"Game Over":=^19}|\n|{"=" * 19}|\n|{" " * 19}|\n')
+            break
+        except NameError:
+            print('Not supported key\n')
+        # finally:
+        #     if input('(Do not restart for save the progress or changes)\nWana restart?[y/n]:\n') != 'y':
+        #         print('Goodbye')
+        #         break
